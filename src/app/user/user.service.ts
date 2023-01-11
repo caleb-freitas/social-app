@@ -7,7 +7,7 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserInput: CreateUserInput) {
-    return this.prisma.user.create({
+    return await this.prisma.user.create({
       data: createUserInput
     })
   }

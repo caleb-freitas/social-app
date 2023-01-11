@@ -2,13 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
+type Post {
   id: ID!
-  name: String!
-  email: String!
-  password: String!
+  userId: String!
+  user: [User!]!
+  content: String!
   createdAt: DateTime!
-  updatedAt: DateTime!
 }
 
 """
@@ -16,16 +15,36 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+  posts: [Post!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
-  sayHello: String!
+  listPosts(input: ListPostsInput!): [Post!]!
+}
+
+input ListPostsInput {
+  userId: String!
 }
 
 type Mutation {
-  handle(input: CreateUserInput!): User!
+  createUser(input: CreateUserInput!): User!
+  createPost(input: CreatePostInput!): Post!
 }
 
 input CreateUserInput {
   name: String!
   email: String!
   password: String!
+}
+
+input CreatePostInput {
+  userId: String!
+  content: String!
 }

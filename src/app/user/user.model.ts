@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { Post } from "../post/post.model";
 
 @ObjectType()
 export class User {
@@ -13,6 +14,9 @@ export class User {
 
   @Field()
   password: string;
+
+  @Field(() => [Post])
+  posts: Post[];
 
   @Field()
   createdAt: Date;

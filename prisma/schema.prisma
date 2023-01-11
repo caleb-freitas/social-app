@@ -15,7 +15,15 @@ model User {
   name      String
   email     String   @unique
   password  String
+  posts Post[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
 
+model Post {
+  id String @id @default(cuid())
+  userId String
+  user User? @relation(fields: [userId], references: [id])
+  content String
+  createdAt DateTime @default(now())
+}

@@ -7,7 +7,7 @@ export class User {
   id: string;
 
   @Field()
-  name: string;
+  userName: string;
 
   @Field()
   email: string;
@@ -17,6 +17,12 @@ export class User {
 
   @Field(() => [Post])
   posts: Post[];
+
+  @Field(() => [User])
+  followers: User[];
+
+  @Field(() => [User])
+  following: User[];
 
   @Field()
   createdAt: Date;

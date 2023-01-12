@@ -17,10 +17,12 @@ scalar DateTime
 
 type User {
   id: ID!
-  name: String!
+  userName: String!
   email: String!
   password: String!
   posts: [Post!]!
+  followers: [User!]!
+  following: [User!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -35,13 +37,19 @@ input ListPostsInput {
 
 type Mutation {
   createUser(input: CreateUserInput!): User!
+  followUser(input: FollowUserInput!): User!
   createPost(input: CreatePostInput!): Post!
 }
 
 input CreateUserInput {
-  name: String!
+  userName: String!
   email: String!
   password: String!
+}
+
+input FollowUserInput {
+  followerId: String!
+  followedId: String!
 }
 
 input CreatePostInput {

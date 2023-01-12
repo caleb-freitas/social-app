@@ -12,18 +12,21 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  name      String
+  userName  String   @unique
   email     String   @unique
   password  String
-  posts Post[]
+  posts     Post[]
+  followers User[]   @relation("UserFollows")
+  following User[]   @relation("UserFollows")
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 model Post {
-  id String @id @default(cuid())
-  userId String
-  user User? @relation(fields: [userId], references: [id])
-  content String
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

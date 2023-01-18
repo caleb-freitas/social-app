@@ -16,6 +16,7 @@ model User {
   email     String   @unique
   password  String
   posts     Post[]
+  replies   Reply[]
   followers User[]   @relation("UserFollows")
   following User[]   @relation("UserFollows")
   createdAt DateTime @default(now())
@@ -26,6 +27,18 @@ model Post {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+  content   String
+  replies   Reply[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Reply {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

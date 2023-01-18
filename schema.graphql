@@ -5,15 +5,28 @@
 type Post {
   id: ID!
   userId: String!
-  user: [User!]!
+  user: User!
   content: String!
+  replies: [Reply!]!
   createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type Reply {
+  id: ID!
+  userId: String!
+  user: User!
+  postId: String!
+  post: Post!
+  content: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
 
 type User {
   id: ID!
@@ -39,6 +52,7 @@ type Mutation {
   createUser(input: CreateUserInput!): User!
   followUser(input: FollowUserInput!): User!
   createPost(input: CreatePostInput!): Post!
+  replyPost(input: ReplyPostInput!): Reply!
 }
 
 input CreateUserInput {
@@ -54,5 +68,11 @@ input FollowUserInput {
 
 input CreatePostInput {
   userId: String!
+  content: String!
+}
+
+input ReplyPostInput {
+  userId: String!
+  postId: String!
   content: String!
 }

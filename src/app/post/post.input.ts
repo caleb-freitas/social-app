@@ -14,3 +14,15 @@ export class ListPostsInput {
   @Field()
   userId: string;
 }
+
+@InputType()
+export class ReplyPostInput {
+  @Field()
+  userId: string;
+
+  @Field()
+  postId: string;
+
+  @Field()
+  content: string;
+}

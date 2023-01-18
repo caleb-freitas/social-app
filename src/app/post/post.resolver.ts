@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CreatePostInput, ListPostsInput } from './post.input';
-import { Post } from './post.model';
+import { CreatePostInput, ListPostsInput, ReplyPostInput } from './post.input';
+import { Post, Reply } from './post.model';
 import { PostService } from './post.service';
 
 @Resolver(() => Post)
@@ -27,6 +27,19 @@ export class PostResolver {
   ) {
     try {
       const response = await this.service.list(input);
+      return response;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  @Mutation(() => Reply)
+  async replyPost(
+    @Args('input')
+    input: ReplyPostInput
+  ) {
+    try {
+      const response = await this.service.reply(input);
       return response;
     } catch (e) {
       throw new Error(e);

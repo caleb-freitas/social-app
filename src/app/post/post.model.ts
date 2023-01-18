@@ -9,12 +9,45 @@ export class Post {
   @Field()
   userId: string;
 
-  @Field(() => [User])
-  user: User[]
+  @Field(() => User)
+  user: User;
 
   @Field()
-  content: string
+  content: string;
+
+  @Field(() => [Reply])
+  replies: Reply[];
 
   @Field()
-  createdAt: Date
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
+}
+
+@ObjectType()
+export class Reply {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  userId: string;
+
+  @Field(() => User)
+  user: User;
+
+  @Field()
+  postId: string;
+
+  @Field(() => Post)
+  post: Post;
+
+  @Field()
+  content: string;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
 }

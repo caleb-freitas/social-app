@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { GraphQLModule } from '@nestjs/graphql';
+import { BullModule } from '@nestjs/bull';
 import { UserModule } from './app/user/user.module';
 import { PostModule } from './app/post/post.module';
 
@@ -9,6 +10,12 @@ import { PostModule } from './app/post/post.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.graphql',
+    }),
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
     }),
     UserModule,
     PostModule,

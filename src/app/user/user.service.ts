@@ -1,15 +1,22 @@
+import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
+import { Queue } from 'bull';
 import { PrismaService } from '../common/services/prisma.service';
 import { CreateUserInput, FollowUserInput } from './user.input';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue('aws.s3.image-upload')
+    private readonly queue: Queue
+  ) {}
 
   async create(createUserInput: CreateUserInput) {
-    return await this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: createUserInput
     })
+    return user;
   }
 
   async follow(followUserInput: FollowUserInput) {

@@ -43,6 +43,9 @@ export class Reply {
   post: Post;
 
   @Field()
+  isThread: boolean;
+
+  @Field()
   content: string;
 
   @Field()

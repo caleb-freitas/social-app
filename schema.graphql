@@ -23,6 +23,7 @@ type Reply {
   user: User!
   postId: String!
   post: Post!
+  isThread: Boolean!
   content: String!
   createdAt: DateTime!
   updatedAt: DateTime!

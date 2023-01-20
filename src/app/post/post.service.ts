@@ -42,13 +42,20 @@ export class PostService {
   }
 
   async reply(replyPostInput: ReplyPostInput) {
-    try {
+    const { userId, postId } = replyPostInput;
+    const targetPost = await this.prisma.post.findUnique({
+      where: {
+        id: postId
+      }
+    })
+    const isPostOwner = targetPost.userId === userId;
+    console.log(isPostOwner)
       const reply = await this.prisma.reply.create({
-        data: replyPostInput, 
+        data: {
+          ...replyPostInput,
+          isThread: isPostOwner
+        } 
       })
-      return reply;
-    } catch (e) {
-      throw new Error(e);
-    }
+    return reply;
   }
 }

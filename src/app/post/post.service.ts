@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../common/services/prisma.service';
-import { CreatePostInput, LikePostInput, ListPostsInput, ReplyPostInput, UnlikePostInput } from './post.input';
+import { CreatePostInput, FindPostInput, LikePostInput, ListPostsInput, ReplyPostInput, UnlikePostInput } from './post.input';
 
 const defaultPostSelect = Prisma.validator<Prisma.PostSelect>()({
   id: true,
   userId: true,
   user: true,
+  parentId: true,
+  parent: true,
   content: true,
   replies: true,
+  likes: true,
+  isThread: true,
   createdAt: true,
-  updatedAt: true
 })
 
 @Injectable()
@@ -40,21 +43,34 @@ export class PostService {
     }
   }
 
+  async findPost(findPostInput: FindPostInput) {
+    const { postId } = findPostInput;
+    try {
+      const post = await this.prisma.post.findUnique({
+        select: defaultPostSelect,
+        where: { id: postId },
+      })
+      return post;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
   async reply(replyPostInput: ReplyPostInput) {
     try {
-      const { userId, postId } = replyPostInput;
+      const { userId, parentId } = replyPostInput;
       const targetPost = await this.prisma.post.findUnique({
         where: {
-          id: postId
+          id: parentId,
         }
       })
       const isPostOwner = targetPost.userId === userId;
-        const reply = await this.prisma.reply.create({
-          data: {
-            ...replyPostInput,
-            isThread: isPostOwner
-          } 
-        })
+      const reply = await this.prisma.post.create({
+        data: {
+          ...replyPostInput,
+          isThread: isPostOwner,
+        } 
+      })
       return reply;
     } catch (e) {
       throw new Error(e);

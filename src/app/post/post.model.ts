@@ -15,47 +15,23 @@ export class Post {
   @Field()
   content: string;
 
-  @Field(() => [Reply])
-  replies: Reply[];
+  @Field({ nullable: true })
+  parentId?: string;
+
+  @Field(() => Post, { nullable: true })
+  parent?: Post;
+
+  @Field(() => [Post])
+  replies: Post[];
 
   @Field(() => [Like])
   likes: Like[];
 
   @Field()
-  createdAt: Date;
-
-  @Field()
-  updatedAt: Date;
-}
-
-@ObjectType()
-export class Reply {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  userId: string;
-
-  @Field(() => User)
-  user: User;
-
-  @Field()
-  postId: string;
-
-  @Field(() => Post)
-  post: Post;
-
-  @Field()
   isThread: boolean;
 
-  @Field()
-  content: string;
-
-  @Field()
+  @Field(() => Date)
   createdAt: Date;
-
-  @Field()
-  updatedAt: Date;
 }
 
 @ObjectType()

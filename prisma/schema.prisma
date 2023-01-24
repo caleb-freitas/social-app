@@ -13,7 +13,6 @@ model User {
   email     String   @unique
   password  String
   posts     Post[]
-  replies   Reply[]
   likes     Like[]
   followers User[]   @relation("UserFollows")
   following User[]   @relation("UserFollows")
@@ -26,22 +25,12 @@ model Post {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   content   String
-  replies   Reply[]
+  parentId  String?
+  parent    Post?    @relation("PostReplies", fields: [parentId], references: [id])
+  replies   Post[]   @relation("PostReplies")
   likes     Like[]
+  isThread  Boolean  @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Reply {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id])
-  isThread  Boolean
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Like {

@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CreatePostInput, LikePostInput, ListPostsInput, ReplyPostInput, UnlikePostInput } from './post.input';
-import { Post, Reply } from './post.model';
+import { CreatePostInput, FindPostInput, LikePostInput, ListPostsInput, ReplyPostInput, UnlikePostInput } from './post.input';
+import { Post } from './post.model';
 import { PostService } from './post.service';
 
 @Resolver(() => Post)
@@ -33,7 +33,7 @@ export class PostResolver {
     }
   }
 
-  @Mutation(() => Reply)
+  @Mutation(() => Post)
   async replyPost(
     @Args('input')
     input: ReplyPostInput
@@ -46,7 +46,7 @@ export class PostResolver {
     }
   }
 
-  @Mutation(() => Reply)
+  @Mutation(() => Post)
   async likePost(
     @Args('input')
     input: LikePostInput
@@ -59,13 +59,26 @@ export class PostResolver {
     }
   }
 
-  @Mutation(() => Reply)
+  @Mutation(() => Post)
   async unlikePost(
     @Args('input')
     input: UnlikePostInput
   ) {
     try {
       const response = await this.service.unlike(input);
+      return response;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  @Mutation(() => Post)
+  async findPost(
+    @Args('input')
+    input: FindPostInput
+  ) {
+    try {
+      const response = await this.service.findPost(input);
       return response;
     } catch (e) {
       throw new Error(e);

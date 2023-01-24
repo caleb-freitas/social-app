@@ -5,6 +5,9 @@ export class CreatePostInput {
   @Field()
   userId: string;
 
+  @Field({ nullable: true })
+  parentId?: string;
+  
   @Field()
   content: string;
 }
@@ -16,12 +19,18 @@ export class ListPostsInput {
 }
 
 @InputType()
+export class FindPostInput {
+  @Field()
+  postId: string;
+}
+
+@InputType()
 export class ReplyPostInput {
   @Field()
   userId: string;
 
   @Field()
-  postId: string;
+  parentId: string;
 
   @Field()
   content: string;

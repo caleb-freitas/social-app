@@ -1,5 +1,5 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { CreateUserInput, FollowUserInput } from './user.input';
+import { CreateUserInput, FollowUserInput, UnfollowUserInput } from './user.input';
 import { User } from './user.model';
 import { UserService } from './user.service';
 
@@ -30,6 +30,19 @@ export class UserResolver {
       return response;
     } catch (e) {
       throw new Error();
+    }
+  }
+
+  @Mutation(() => User)
+  async unfollowUser(
+    @Args('input')
+    input: UnfollowUserInput
+  ) {
+    try {
+      const response = await this.service.unfollow(input);
+      return response;
+    } catch (e) {
+      throw new Error(e);
     }
   }
 }

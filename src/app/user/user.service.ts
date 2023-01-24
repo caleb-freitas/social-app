@@ -1,22 +1,22 @@
-import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
-import { Queue } from 'bull';
 import { PrismaService } from '../common/services/prisma.service';
-import { CreateUserInput, FollowUserInput } from './user.input';
+import { CreateUserInput, FollowUserInput, UnfollowUserInput } from './user.input';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    @InjectQueue('aws.s3.image-upload')
-    private readonly queue: Queue
   ) {}
 
   async create(createUserInput: CreateUserInput) {
-    const user = await this.prisma.user.create({
-      data: createUserInput
-    })
-    return user;
+    try {
+      const user = await this.prisma.user.create({
+        data: createUserInput,
+      })
+      return user;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async follow(followUserInput: FollowUserInput) {
@@ -33,6 +33,23 @@ export class UserService {
       return user;
     } catch (e) {
       throw new Error(e)
+    }
+  }
+
+  async unfollow(unfollowUserInput: UnfollowUserInput) {
+    const { followedId, followerId } = unfollowUserInput;
+    try {
+      const unfollowedUser = await this.prisma.user.update({
+        where: { id: followedId },
+        data: {
+          followers: {
+            disconnect: { id: followerId }
+          }
+        }
+      })
+      return unfollowedUser;
+    } catch (e) {
+      throw new Error(e);
     }
   }
 }

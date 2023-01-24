@@ -20,3 +20,12 @@ export class FollowUserInput {
   @Field()
   followedId: string;
 }
+
+@InputType()
+export class UnfollowUserInput {
+  @Field()
+  followerId: string;
+
+  @Field()
+  followedId: string;
+}

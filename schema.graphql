@@ -8,6 +8,7 @@ type Post {
   user: User!
   content: String!
   replies: [Reply!]!
+  likes: [Like!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -27,6 +28,14 @@ type Reply {
   content: String!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type Like {
+  id: ID!
+  postId: String!
+  post: Post!
+  userId: String!
+  user: User!
 }
 
 type User {
@@ -52,8 +61,11 @@ input ListPostsInput {
 type Mutation {
   createUser(input: CreateUserInput!): User!
   followUser(input: FollowUserInput!): User!
+  unfollowUser(input: UnfollowUserInput!): User!
   createPost(input: CreatePostInput!): Post!
   replyPost(input: ReplyPostInput!): Reply!
+  likePost(input: LikePostInput!): Reply!
+  unlikePost(input: UnlikePostInput!): Reply!
 }
 
 input CreateUserInput {
@@ -67,6 +79,11 @@ input FollowUserInput {
   followedId: String!
 }
 
+input UnfollowUserInput {
+  followerId: String!
+  followedId: String!
+}
+
 input CreatePostInput {
   userId: String!
   content: String!
@@ -76,4 +93,13 @@ input ReplyPostInput {
   userId: String!
   postId: String!
   content: String!
+}
+
+input LikePostInput {
+  postId: String!
+  userId: String!
+}
+
+input UnlikePostInput {
+  id: String!
 }

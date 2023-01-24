@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../common/services/prisma.service';
-import { CreatePostInput, ListPostsInput, ReplyPostInput } from './post.input';
+import { CreatePostInput, LikePostInput, ListPostsInput, ReplyPostInput, UnlikePostInput } from './post.input';
 
 const defaultPostSelect = Prisma.validator<Prisma.PostSelect>()({
   id: true,
@@ -34,7 +34,6 @@ export class PostService {
         select: defaultPostSelect, 
         where: { userId }
       });
-      console.log(posts);
       return posts;
     } catch (e) {
       throw new Error(e);
@@ -42,20 +41,46 @@ export class PostService {
   }
 
   async reply(replyPostInput: ReplyPostInput) {
-    const { userId, postId } = replyPostInput;
-    const targetPost = await this.prisma.post.findUnique({
-      where: {
-        id: postId
-      }
-    })
-    const isPostOwner = targetPost.userId === userId;
-    console.log(isPostOwner)
-      const reply = await this.prisma.reply.create({
-        data: {
-          ...replyPostInput,
-          isThread: isPostOwner
-        } 
+    try {
+      const { userId, postId } = replyPostInput;
+      const targetPost = await this.prisma.post.findUnique({
+        where: {
+          id: postId
+        }
       })
-    return reply;
+      const isPostOwner = targetPost.userId === userId;
+        const reply = await this.prisma.reply.create({
+          data: {
+            ...replyPostInput,
+            isThread: isPostOwner
+          } 
+        })
+      return reply;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  async like(likePostInput: LikePostInput) {
+    try {
+      const like = await this.prisma.like.create({
+        data: likePostInput,
+      })
+      return like;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  async unlike(unlikePostInput: UnlikePostInput) {
+    try {
+      await this.prisma.like.delete({
+        where: {
+          id: unlikePostInput.id,
+        }
+      })
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }

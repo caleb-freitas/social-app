@@ -26,3 +26,18 @@ export class ReplyPostInput {
   @Field()
   content: string;
 }
+
+@InputType()
+export class LikePostInput {
+  @Field()
+  postId: string;
+
+  @Field()
+  userId: string;
+}
+
+@InputType()
+export class UnlikePostInput {
+  @Field()
+  id: string;
+}

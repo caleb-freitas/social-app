@@ -18,6 +18,9 @@ export class Post {
   @Field(() => [Reply])
   replies: Reply[];
 
+  @Field(() => [Like])
+  likes: Like[];
+
   @Field()
   createdAt: Date;
 
@@ -53,4 +56,22 @@ export class Reply {
 
   @Field()
   updatedAt: Date;
+}
+
+@ObjectType()
+export class Like {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  postId: string;
+
+  @Field(() => Post)
+  post: Post;
+
+  @Field()
+  userId: string;
+
+  @Field(() => User)
+  user: User;
 }

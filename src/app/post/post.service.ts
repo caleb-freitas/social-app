@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../common/services/prisma.service';
+import { NotificationService } from '../notification/notification.service';
 import { CreatePostInput, FindPostInput, LikePostInput, ListPostsInput, ReplyPostInput, UnlikePostInput } from './post.input';
 
 const defaultPostSelect = Prisma.validator<Prisma.PostSelect>()({
@@ -18,7 +19,10 @@ const defaultPostSelect = Prisma.validator<Prisma.PostSelect>()({
 
 @Injectable()
 export class PostService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+        private prisma: PrismaService,
+        private notificationService: NotificationService
+    ) {}
 
   async create(createPostInput: CreatePostInput) {
     try {
@@ -81,6 +85,11 @@ export class PostService {
     try {
       const like = await this.prisma.like.create({
         data: likePostInput,
+      })
+      this.notificationService.sendNotification({
+        kind: "PostLiked",
+        userId: likePostInput.userId,
+        postId: likePostInput.postId,
       })
       return like;
     } catch (e) {

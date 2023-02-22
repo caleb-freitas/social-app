@@ -3,34 +3,36 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  userName  String   @unique
-  email     String   @unique
-  password  String
-  posts     Post[]
-  likes     Like[]
-  followers User[]   @relation("UserFollows")
-  following User[]   @relation("UserFollows")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(cuid())
+  userName      String         @unique
+  email         String         @unique
+  password      String
+  posts         Post[]
+  likes         Like[]
+  followers     User[]         @relation("UserFollows")
+  following     User[]         @relation("UserFollows")
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  content   String
-  parentId  String?
-  parent    Post?    @relation("PostReplies", fields: [parentId], references: [id])
-  replies   Post[]   @relation("PostReplies")
-  likes     Like[]
-  isThread  Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  content       String
+  parentId      String?
+  parent        Post?          @relation("PostReplies", fields: [parentId], references: [id])
+  replies       Post[]         @relation("PostReplies")
+  likes         Like[]
+  notifications Notification[]
+  isThread      Boolean        @default(false)
+  createdAt     DateTime       @default(now())
 }
 
 model Like {
@@ -39,4 +41,16 @@ model Like {
   post   Post   @relation(fields: [postId], references: [id])
   userId String
   user   User   @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id])
+  kind      String
+  content   String
+  createdAt DateTime @default(now())
+  wasRead   Boolean  @default(false)
 }

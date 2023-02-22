@@ -3,7 +3,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { UserModule } from './app/user/user.module';
 import { PostModule } from './app/post/post.module';
-import { NotificationModule } from './notification/notification.module';
+import { NotificationModule } from './app/notification/notification.module';
 
 @Module({
   imports: [

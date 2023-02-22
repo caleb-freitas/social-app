@@ -3,7 +3,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { UserModule } from './app/user/user.module';
 import { PostModule } from './app/post/post.module';
-import { ChatModule } from './app/chat/chat.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { ChatModule } from './app/chat/chat.module';
     }),
     UserModule,
     PostModule,
-    ChatModule
+    NotificationModule,
   ],
 })
 export class AppModule {}

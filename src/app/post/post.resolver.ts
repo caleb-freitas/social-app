@@ -5,7 +5,9 @@ import { PostService } from './post.service';
 
 @Resolver(() => Post)
 export class PostResolver {
-  constructor(private service: PostService) {}
+  constructor(
+    private service: PostService,
+  ) { }
 
   @Mutation(() => Post)
   async createPost(

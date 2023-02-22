@@ -3,51 +3,51 @@ import { User } from "../user/user.model";
 
 @ObjectType()
 export class Post {
-  @Field(() => ID)
-  id: string;
+    @Field(() => ID)
+    id: string;
 
-  @Field()
-  userId: string;
+    @Field()
+    userId: string;
 
-  @Field(() => User)
-  user: User;
+    @Field(() => User)
+    user: User;
 
-  @Field()
-  content: string;
+    @Field()
+    content: string;
 
-  @Field({ nullable: true })
-  parentId?: string;
+    @Field({ nullable: true })
+    parentId?: string;
 
-  @Field(() => Post, { nullable: true })
-  parent?: Post;
+    @Field(() => Post, { nullable: true })
+    parent?: Post;
 
-  @Field(() => [Post])
-  replies: Post[];
+    @Field(() => [Post])
+    replies: Post[];
 
-  @Field(() => [Like])
-  likes: Like[];
+    @Field(() => [Like])
+    likes: Like[];
 
-  @Field()
-  isThread: boolean;
+    @Field()
+    isThread: boolean;
 
-  @Field(() => Date)
-  createdAt: Date;
+    @Field(() => Date)
+    createdAt: Date;
 }
 
 @ObjectType()
 export class Like {
-  @Field(() => ID)
-  id: string;
+    @Field(() => ID)
+    id: string;
 
-  @Field()
-  postId: string;
+    @Field()
+    postId: string;
 
-  @Field(() => Post)
-  post: Post;
+    @Field(() => Post)
+    post: Post;
 
-  @Field()
-  userId: string;
+    @Field()
+    userId: string;
 
-  @Field(() => User)
-  user: User;
+    @Field(() => User)
+    user: User;
 }

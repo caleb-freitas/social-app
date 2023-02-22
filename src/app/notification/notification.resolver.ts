@@ -4,5 +4,5 @@ import { NotificationService } from "./notification.service";
 
 @Resolver(() => Notification)
 export class NotificationResolver {
-  constructor(private service: NotificationService) {}
+    constructor(private service: NotificationService) {}
 }

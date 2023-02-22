@@ -2,7 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../common/services/prisma.service";
 import { CreateNotificationInput } from "./notification.input";
 
-export type NotificationKind = "PostReply" | "PostLiked" | "ReplyLike" | "Follow"
+export type NotificationKind =
+    | "PostReply"
+    | "PostLiked"
+    | "ReplyLike"
+    | "Follow";
 
 @Injectable()
 export class NotificationService {
@@ -16,9 +20,9 @@ export class NotificationService {
         }
 
         if (kind === "PostLiked") {
-          this.sendPostLikedNotification(createNotificationInput);
+            this.sendPostLikedNotification(createNotificationInput);
         }
-        
+
         if (kind === "ReplyLike") {
             this.sendReplyLikedNotification();
         }
@@ -27,21 +31,23 @@ export class NotificationService {
             this.sendFollowedNotification();
         }
     }
-    
+
     async sendReplyToPostNotification() {}
 
-    async sendPostLikedNotification(createNotificationInput: CreateNotificationInput) {
-      try {
-        const notification = await this.prisma.notification.create({
-          data: {
-            ...createNotificationInput,
-            content: `${createNotificationInput.userId} liked your post.`,
-          }
-        })
-        return notification;
-      } catch (e) {
-        throw new Error(e);
-      }
+    async sendPostLikedNotification(
+        createNotificationInput: CreateNotificationInput
+    ) {
+        try {
+            const notification = await this.prisma.notification.create({
+                data: {
+                    ...createNotificationInput,
+                    content: `${createNotificationInput.userId} liked your post.`,
+                },
+            });
+            return notification;
+        } catch (e) {
+            throw new Error(e);
+        }
     }
 
     async sendReplyLikedNotification() {}

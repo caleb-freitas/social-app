@@ -27,7 +27,7 @@ export class Notification {
     content: string;
 
     @Field(() => Date)
-    createdAt: Date
+    createdAt: Date;
 
     @Field()
     wasRead: boolean;

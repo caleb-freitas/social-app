@@ -3,12 +3,12 @@ import { NotificationKind } from "./notification.service";
 
 @InputType()
 export class CreateNotificationInput {
-  @Field()
-  kind: NotificationKind;
+    @Field()
+    kind: NotificationKind;
 
-  @Field()
-  userId: string;
+    @Field()
+    userId: string;
 
-  @Field()
-  postId?: string;
+    @Field()
+    postId?: string;
 }

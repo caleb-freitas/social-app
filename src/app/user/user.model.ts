@@ -3,30 +3,30 @@ import { Post } from "../post/post.model";
 
 @ObjectType()
 export class User {
-  @Field(() => ID)
-  id: string;
+    @Field(() => ID)
+    id: string;
 
-  @Field()
-  userName: string;
+    @Field()
+    userName: string;
 
-  @Field()
-  email: string;
+    @Field()
+    email: string;
 
-  @Field()
-  password: string;
+    @Field()
+    password: string;
 
-  @Field(() => [Post])
-  posts: Post[];
+    @Field(() => [Post])
+    posts: Post[];
 
-  @Field(() => [User])
-  followers: User[];
+    @Field(() => [User])
+    followers: User[];
 
-  @Field(() => [User])
-  following: User[];
+    @Field(() => [User])
+    following: User[];
 
-  @Field()
-  createdAt: Date;
+    @Field()
+    createdAt: Date;
 
-  @Field()
-  updatedAt: Date;
+    @Field()
+    updatedAt: Date;
 }

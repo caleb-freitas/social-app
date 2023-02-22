@@ -3,16 +3,16 @@
 # ------------------------------------------------------
 
 type Post {
-  id: ID!
-  userId: String!
-  user: User!
-  content: String!
-  parentId: String
-  parent: Post
-  replies: [Post!]!
-  likes: [Like!]!
-  isThread: Boolean!
-  createdAt: DateTime!
+    id: ID!
+    userId: String!
+    user: User!
+    content: String!
+    parentId: String
+    parent: Post
+    replies: [Post!]!
+    likes: [Like!]!
+    isThread: Boolean!
+    createdAt: DateTime!
 }
 
 """
@@ -21,81 +21,81 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Like {
-  id: ID!
-  postId: String!
-  post: Post!
-  userId: String!
-  user: User!
+    id: ID!
+    postId: String!
+    post: Post!
+    userId: String!
+    user: User!
 }
 
 type User {
-  id: ID!
-  userName: String!
-  email: String!
-  password: String!
-  posts: [Post!]!
-  followers: [User!]!
-  following: [User!]!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+    id: ID!
+    userName: String!
+    email: String!
+    password: String!
+    posts: [Post!]!
+    followers: [User!]!
+    following: [User!]!
+    createdAt: DateTime!
+    updatedAt: DateTime!
 }
 
 type Query {
-  listPosts(input: ListPostsInput!): [Post!]!
+    listPosts(input: ListPostsInput!): [Post!]!
 }
 
 input ListPostsInput {
-  userId: String!
+    userId: String!
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): User!
-  followUser(input: FollowUserInput!): User!
-  unfollowUser(input: UnfollowUserInput!): User!
-  createPost(input: CreatePostInput!): Post!
-  replyPost(input: ReplyPostInput!): Post!
-  likePost(input: LikePostInput!): Post!
-  unlikePost(input: UnlikePostInput!): Post!
-  findPost(input: FindPostInput!): Post!
+    createUser(input: CreateUserInput!): User!
+    followUser(input: FollowUserInput!): User!
+    unfollowUser(input: UnfollowUserInput!): User!
+    createPost(input: CreatePostInput!): Post!
+    replyPost(input: ReplyPostInput!): Post!
+    likePost(input: LikePostInput!): Post!
+    unlikePost(input: UnlikePostInput!): Post!
+    findPost(input: FindPostInput!): Post!
 }
 
 input CreateUserInput {
-  userName: String!
-  email: String!
-  password: String!
+    userName: String!
+    email: String!
+    password: String!
 }
 
 input FollowUserInput {
-  followerId: String!
-  followedId: String!
+    followerId: String!
+    followedId: String!
 }
 
 input UnfollowUserInput {
-  followerId: String!
-  followedId: String!
+    followerId: String!
+    followedId: String!
 }
 
 input CreatePostInput {
-  userId: String!
-  parentId: String
-  content: String!
+    userId: String!
+    parentId: String
+    content: String!
 }
 
 input ReplyPostInput {
-  userId: String!
-  parentId: String!
-  content: String!
+    userId: String!
+    parentId: String!
+    content: String!
 }
 
 input LikePostInput {
-  postId: String!
-  userId: String!
+    postId: String!
+    userId: String!
 }
 
 input UnlikePostInput {
-  id: String!
+    id: String!
 }
 
 input FindPostInput {
-  postId: String!
+    postId: String!
 }

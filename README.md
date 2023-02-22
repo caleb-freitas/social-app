@@ -4,15 +4,15 @@
 
 - [ ] **User Authentication and Authorization:** This feature will handle user registration, login, and logout.
 
-- [ ] **User Profile:** This feature will allow users to view and edit their profiles, including their name, bio, profile picture, and contact information.
+- [x] **User Profile:** This feature will allow users to view and edit their profiles, including their name, bio, profile picture, and contact information.
 
-- [ ] **Posting:** This feature will allow users to create, view, and delete posts.
+- [x] **Posting:** This feature will allow users to create, view, and delete posts.
 
-- [ ] **Commenting:** This feature will allow users to comment on posts.
+- [x] **Commenting:** This feature will allow users to comment on posts.
 
-- [ ] **Liking:** This feature will allow users to like or unlike posts.
+- [x] **Liking:** This feature will allow users to like or unlike posts.
 
-- [ ] **Following:** This feature will allow users to follow or unfollow other users.
+- [x] **Following:** This feature will allow users to follow or unfollow other users.
 
 - [ ] **Notifications:** This feature will allow users to receive notifications for events like new comments, likes, and follows on their posts.
 

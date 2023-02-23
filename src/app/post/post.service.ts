@@ -33,9 +33,10 @@ export class PostService {
 
     async create(createPostInput: CreatePostInput) {
         try {
-            return await this.prisma.post.create({
+            const post = await this.prisma.post.create({
                 data: createPostInput,
             });
+            return post;
         } catch (e) {
             throw new Error(e);
         }
@@ -67,6 +68,18 @@ export class PostService {
         }
     }
 
+    async findPostById(id: string) {
+        try {
+            const post = await this.prisma.post.findUnique({
+                select: defaultPostSelect,
+                where: { id }
+            })
+            return post;
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
     async reply(replyPostInput: ReplyPostInput) {
         try {
             const { userId, parentId } = replyPostInput;
@@ -90,13 +103,19 @@ export class PostService {
 
     async like(likePostInput: LikePostInput) {
         try {
+            const { userId, postId } = likePostInput;
+            const post = await this.findPostById(postId);
+            const postWasAlreadyLiked = post.likes.some((like) => like.userId === userId);
+            if (postWasAlreadyLiked) {
+                throw new Error("You can only like a post once.");
+            }
             const like = await this.prisma.like.create({
                 data: likePostInput,
             });
             this.notificationService.sendNotification({
                 kind: "PostLiked",
-                userId: likePostInput.userId,
-                postId: likePostInput.postId,
+                userId,
+                postId,
             });
             return like;
         } catch (e) {

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../common/services/prisma.service";
 import { NotificationService } from "../notification/notification.service";
@@ -81,23 +81,43 @@ export class PostService {
     }
 
     async reply(replyPostInput: ReplyPostInput) {
+        const { userId, parentId } = replyPostInput;
+
+        const targetPost = await this.prisma.post.findUnique({
+            select: defaultPostSelect,
+            where: { id: parentId }
+        });
+
+        if (!targetPost) {
+            throw new NotFoundException(`Post with id (${parentId}) not found.`)
+        }
+
+        const isPostOwner = targetPost.userId === userId;
+
         try {
-            const { userId, parentId } = replyPostInput;
-            const targetPost = await this.prisma.post.findUnique({
-                where: {
-                    id: parentId,
-                },
-            });
-            const isPostOwner = targetPost.userId === userId;
             const reply = await this.prisma.post.create({
+                select: defaultPostSelect,
                 data: {
                     ...replyPostInput,
                     isThread: isPostOwner,
                 },
             });
+
+            if (isPostOwner) {
+                return reply;
+            }
+
+            await this.notificationService.sendNotification({
+                kind: "PostReply",
+                userId,
+                postId: parentId,
+            })
+
             return reply;
         } catch (e) {
-            throw new Error(e);
+            throw new InternalServerErrorException(
+                `Failed to create reply due to: ${e}.`
+            );
         }
     }
 

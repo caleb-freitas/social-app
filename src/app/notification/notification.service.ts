@@ -1,4 +1,5 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../common/services/prisma.service";
 import { CreateNotificationInput } from "./notification.input";
 
@@ -8,6 +9,19 @@ export type NotificationKind =
     | "ReplyLike"
     | "Follow";
 
+
+const defaultNotificationSelect = Prisma.validator<Prisma.NotificationSelect>()({
+    id: true,
+    userId: true,
+    user: true,
+    postId: true,
+    post: true,
+    kind: true,
+    content: true,
+    wasRead: true,
+    createdAt: true,
+});
+
 @Injectable()
 export class NotificationService {
     constructor(private prisma: PrismaService) {}
@@ -16,7 +30,7 @@ export class NotificationService {
         const { kind } = createNotificationInput;
 
         if (kind === "PostReply") {
-            this.sendReplyToPostNotification();
+            this.sendReplyToPostNotification(createNotificationInput);
         }
 
         if (kind === "PostLiked") {
@@ -32,13 +46,32 @@ export class NotificationService {
         }
     }
 
-    async sendReplyToPostNotification() {}
+    async sendReplyToPostNotification(
+        createNotificationInput: CreateNotificationInput
+    ) {
+        try {
 
-    async sendPostLikedNotification(
+            const notification = await this.prisma.notification.create({
+                select: defaultNotificationSelect,
+                data: {
+                    ...createNotificationInput,
+                    content: `${createNotificationInput.userId} replied to your post.`,
+                },
+            });
+            return notification;
+        } catch (e) {
+            throw new InternalServerErrorException(
+                `Failed to create reply due to: ${e}.`
+            );
+        }
+    }
+
+    private async sendPostLikedNotification(
         createNotificationInput: CreateNotificationInput
     ) {
         try {
             const notification = await this.prisma.notification.create({
+                select: defaultNotificationSelect,
                 data: {
                     ...createNotificationInput,
                     content: `${createNotificationInput.userId} liked your post.`,
@@ -46,11 +79,13 @@ export class NotificationService {
             });
             return notification;
         } catch (e) {
-            throw new Error(e);
+            throw new InternalServerErrorException(
+                `Failed to create reply due to: ${e}.`
+            );
         }
     }
 
-    async sendReplyLikedNotification() {}
+    private async sendReplyLikedNotification() {}
 
     async sendFollowedNotification() {}
 }

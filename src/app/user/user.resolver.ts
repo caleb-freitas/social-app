@@ -5,7 +5,12 @@ import {
     UnfollowUserInput,
 } from "./user.input";
 import { User } from "./user.model";
-import { CreateUserCommand, FollowUserCommand, UnfollowUserCommand, UserService } from "./user.service";
+import {
+    CreateUserCommand,
+    FollowUserCommand,
+    UnfollowUserCommand,
+    UserService,
+} from "./user.service";
 
 @Resolver(() => User)
 export class UserResolver {

@@ -1,7 +1,11 @@
-import { ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import {
+    ConflictException,
+    Injectable,
+    InternalServerErrorException,
+} from "@nestjs/common";
 import { Command } from "../common/interfaces/command";
 import { PrismaService } from "../common/services/prisma.service";
-import { Prisma, User } from "@prisma/client"
+import { Prisma, User } from "@prisma/client";
 import {
     CreateUserInput,
     FollowUserInput,
@@ -19,21 +23,21 @@ const defaultUserSelect = Prisma.validator<Prisma.UserSelect>()({
     following: true,
     notifications: true,
     createdAt: true,
-    updatedAt: true
+    updatedAt: true,
 });
 
 @Injectable()
 export class UserService {
-  async executeCommand(command: Command<any>): Promise<any> {
-    return await command.execute();
-  }
+    async executeCommand(command: Command<any>): Promise<any> {
+        return await command.execute();
+    }
 }
 
 export class CreateUserCommand implements Command<any> {
     private prisma: PrismaService;
 
     constructor(private readonly input: CreateUserInput) {
-        this.prisma = new PrismaService()
+        this.prisma = new PrismaService();
     }
 
     async execute(): Promise<User> {
@@ -56,11 +60,11 @@ export class FollowUserCommand implements Command<any> {
     private prisma: PrismaService;
 
     constructor(private readonly input: FollowUserInput) {
-        this.prisma = new PrismaService()
+        this.prisma = new PrismaService();
     }
 
     async execute(): Promise<any> {
-        const { followedId, followerId} = this.input;
+        const { followedId, followerId } = this.input;
         try {
             const followedUser = await this.prisma.user.update({
                 select: defaultUserSelect,
@@ -82,7 +86,7 @@ export class UnfollowUserCommand implements Command<any> {
     private prisma: PrismaService;
 
     constructor(private readonly input: UnfollowUserInput) {
-        this.prisma = new PrismaService()
+        this.prisma = new PrismaService();
     }
 
     async execute(): Promise<any> {

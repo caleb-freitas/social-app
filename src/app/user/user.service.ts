@@ -1,11 +1,26 @@
 import { ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Command } from "../common/interfaces/command";
 import { PrismaService } from "../common/services/prisma.service";
+import { Prisma, User } from "@prisma/client"
 import {
     CreateUserInput,
     FollowUserInput,
     UnfollowUserInput,
 } from "./user.input";
+
+const defaultUserSelect = Prisma.validator<Prisma.UserSelect>()({
+    id: true,
+    userName: true,
+    email: true,
+    password: true,
+    posts: true,
+    likes: true,
+    followers: true,
+    following: true,
+    notifications: true,
+    createdAt: true,
+    updatedAt: true
+});
 
 @Injectable()
 export class UserService {
@@ -21,9 +36,10 @@ export class CreateUserCommand implements Command<any> {
         this.prisma = new PrismaService()
     }
 
-    async execute(): Promise<any> {
+    async execute(): Promise<User> {
         try {
             const newUser = await this.prisma.user.create({
+                select: defaultUserSelect,
                 data: this.input,
             });
             return newUser;
@@ -47,6 +63,7 @@ export class FollowUserCommand implements Command<any> {
         const { followedId, followerId} = this.input;
         try {
             const followedUser = await this.prisma.user.update({
+                select: defaultUserSelect,
                 where: { id: followedId },
                 data: {
                     followers: {
@@ -72,6 +89,7 @@ export class UnfollowUserCommand implements Command<any> {
         const { followedId, followerId } = this.input;
         try {
             const unfollowedUser = await this.prisma.user.update({
+                select: defaultUserSelect,
                 where: { id: followedId },
                 data: {
                     followers: {

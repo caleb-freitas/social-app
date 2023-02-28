@@ -1,4 +1,5 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Command } from "../common/interfaces/command";
 import { PrismaService } from "../common/services/prisma.service";
 import {
     CreateUserInput,
@@ -8,23 +9,44 @@ import {
 
 @Injectable()
 export class UserService {
-    constructor(private readonly prisma: PrismaService) {}
+  async executeCommand(command: Command<any>): Promise<any> {
+    return await command.execute();
+  }
+}
 
-    async create(createUserInput: CreateUserInput) {
-        try {
-            const user = await this.prisma.user.create({
-                data: createUserInput,
-            });
-            return user;
-        } catch (e) {
-            throw new Error(e);
-        }
+export class CreateUserCommand implements Command<any> {
+    private prisma: PrismaService;
+
+    constructor(private readonly input: CreateUserInput) {
+        this.prisma = new PrismaService()
     }
 
-    async follow(followUserInput: FollowUserInput) {
-        const { followedId, followerId } = followUserInput;
+    async execute(): Promise<any> {
         try {
-            const user = await this.prisma.user.update({
+            const newUser = await this.prisma.user.create({
+                data: this.input,
+            });
+            return newUser;
+        } catch (error) {
+            if (error.code === "P2002") {
+                throw new ConflictException("E-mail already registered.");
+            }
+            throw new InternalServerErrorException(error);
+        }
+    }
+}
+
+export class FollowUserCommand implements Command<any> {
+    private prisma: PrismaService;
+
+    constructor(private readonly input: FollowUserInput) {
+        this.prisma = new PrismaService()
+    }
+
+    async execute(): Promise<any> {
+        const { followedId, followerId} = this.input;
+        try {
+            const followedUser = await this.prisma.user.update({
                 where: { id: followedId },
                 data: {
                     followers: {
@@ -32,14 +54,22 @@ export class UserService {
                     },
                 },
             });
-            return user;
-        } catch (e) {
-            throw new Error(e);
+            return followedUser;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
         }
     }
+}
 
-    async unfollow(unfollowUserInput: UnfollowUserInput) {
-        const { followedId, followerId } = unfollowUserInput;
+export class UnfollowUserCommand implements Command<any> {
+    private prisma: PrismaService;
+
+    constructor(private readonly input: UnfollowUserInput) {
+        this.prisma = new PrismaService()
+    }
+
+    async execute(): Promise<any> {
+        const { followedId, followerId } = this.input;
         try {
             const unfollowedUser = await this.prisma.user.update({
                 where: { id: followedId },
@@ -50,8 +80,8 @@ export class UserService {
                 },
             });
             return unfollowedUser;
-        } catch (e) {
-            throw new Error(e);
+        } catch (error) {
+            throw new InternalServerErrorException(error);
         }
     }
 }

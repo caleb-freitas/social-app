@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { Post } from "../post/post.model";
+import { Notification } from "../notification/notification.model";
+import { Like, Post } from "../post/post.model";
 
 @ObjectType()
 export class User {
@@ -18,11 +19,17 @@ export class User {
     @Field(() => [Post])
     posts: Post[];
 
+    @Field(() => [Like])
+    likes: Like[];
+
     @Field(() => [User])
     followers: User[];
 
     @Field(() => [User])
     following: User[];
+
+    @Field(() => [Notification])
+    notifications: Notification[];
 
     @Field()
     createdAt: Date;

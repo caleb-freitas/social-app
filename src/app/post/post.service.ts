@@ -1,12 +1,20 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../common/services/prisma.service";
 import { NotificationService } from "../notification/notification.service";
+import { Like, Post } from "./post.model";
+import { Command } from "../common/interfaces/command";
+import {
+    BadRequestException,
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+} from "@nestjs/common";
 import {
     CreatePostInput,
-    FindPostInput,
+    FindManyPostsInput,
+    FindUniqueLikeInput,
+    FindUniquePostInput,
     LikePostInput,
-    ListPostsInput,
     ReplyPostInput,
     UnlikePostInput,
 } from "./post.input";
@@ -24,72 +32,104 @@ const defaultPostSelect = Prisma.validator<Prisma.PostSelect>()({
     createdAt: true,
 });
 
+const defaultLikeSelect = Prisma.validator<Prisma.LikeSelect>()({
+    id: true,
+    postId: true,
+    post: true,
+    userId: true,
+    user: true,
+});
+
 @Injectable()
 export class PostService {
-    constructor(
-        private prisma: PrismaService,
-        private notificationService: NotificationService
-    ) {}
+    async executeCommand(command: Command<Post>): Promise<Post> {
+        return await command.execute();
+    }
+}
 
-    async create(createPostInput: CreatePostInput) {
-        try {
-            const post = await this.prisma.post.create({
-                data: createPostInput,
-            });
-            return post;
-        } catch (e) {
-            throw new Error(e);
-        }
+export class CreatePostCommand implements Command<Post> {
+    private prisma: PrismaService;
+
+    constructor(private readonly input: CreatePostInput) {
+        this.prisma = new PrismaService();
     }
 
-    async list(listPostsInput: ListPostsInput) {
-        const { userId } = listPostsInput;
+    async execute(): Promise<any> {
         try {
-            const posts = await this.prisma.post.findMany({
+            const newPost = await this.prisma.post.create({
                 select: defaultPostSelect,
-                where: { userId },
+                data: this.input,
             });
-            return posts;
-        } catch (e) {
-            throw new Error(e);
+            return newPost;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
         }
     }
+}
 
-    async findPost(findPostInput: FindPostInput) {
-        const { postId } = findPostInput;
+export class FindUniquePostCommand implements Command<Post> {
+    private prisma: PrismaService;
+
+    constructor(private readonly input: FindUniquePostInput) {
+        this.prisma = new PrismaService();
+    }
+
+    async execute(): Promise<any> {
+        const { postId } = this.input;
         try {
             const post = await this.prisma.post.findUnique({
                 select: defaultPostSelect,
                 where: { id: postId },
             });
+
             return post;
-        } catch (e) {
-            throw new Error(e);
+        } catch (error) {
+            throw new InternalServerErrorException(error);
         }
     }
+}
 
-    async findPostById(id: string) {
+export class FindManyPostsCommand implements Command<Post> {
+    private prisma: PrismaService;
+
+    constructor(private readonly input: FindManyPostsInput) {
+        this.prisma = new PrismaService();
+    }
+
+    async execute(): Promise<any> {
+        const { userId } = this.input;
         try {
-            const post = await this.prisma.post.findUnique({
+            const posts = await this.prisma.post.findMany({
                 select: defaultPostSelect,
-                where: { id }
-            })
-            return post;
-        } catch (e) {
-            throw new Error(e);
+                where: { userId },
+            });
+
+            return posts;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
         }
     }
+}
 
-    async reply(replyPostInput: ReplyPostInput) {
-        const { userId, parentId } = replyPostInput;
+export class ReplyPostsCommand implements Command<Post> {
+    private prisma: PrismaService;
+    private notificationService: NotificationService;
 
-        const targetPost = await this.prisma.post.findUnique({
-            select: defaultPostSelect,
-            where: { id: parentId }
-        });
+    constructor(private readonly input: ReplyPostInput) {
+        this.prisma = new PrismaService();
+        this.notificationService = new NotificationService(this.prisma);
+    }
+
+    async execute(): Promise<any> {
+        const { userId, parentId } = this.input;
+
+        const command = new FindUniquePostCommand({ postId: parentId });
+        const targetPost = await command.execute();
 
         if (!targetPost) {
-            throw new NotFoundException(`Post with id (${parentId}) not found.`)
+            throw new NotFoundException(
+                `Post with id ${parentId} does not exist.`
+            );
         }
 
         const isPostOwner = targetPost.userId === userId;
@@ -98,7 +138,7 @@ export class PostService {
             const reply = await this.prisma.post.create({
                 select: defaultPostSelect,
                 data: {
-                    ...replyPostInput,
+                    ...this.input,
                     isThread: isPostOwner,
                 },
             });
@@ -111,47 +151,115 @@ export class PostService {
                 kind: "PostReply",
                 userId,
                 postId: parentId,
-            })
+            });
 
             return reply;
-        } catch (e) {
-            throw new InternalServerErrorException(
-                `Failed to create reply due to: ${e}.`
-            );
+        } catch (error) {
+            throw new InternalServerErrorException(error);
         }
     }
+}
 
-    async like(likePostInput: LikePostInput) {
+export class LikePostCommand implements Command<Post> {
+    private prisma: PrismaService;
+    private notificationService: NotificationService;
+
+    constructor(private readonly input: LikePostInput) {
+        this.prisma = new PrismaService();
+        this.notificationService = new NotificationService(this.prisma);
+    }
+
+    async execute(): Promise<any> {
+        const { userId, postId } = this.input;
+
+        const command = new FindUniquePostCommand({ postId });
+        const targetPost = await command.execute();
+
+        if (!targetPost) {
+            throw new NotFoundException(
+                `Post with id ${postId} does not exist.`
+            );
+        }
+
+        const postWasAlreadyLiked = targetPost.likes.some(
+            (like: Like) => like.userId === userId
+        );
+
+        if (postWasAlreadyLiked) {
+            throw new BadRequestException(
+                `User already liked post with id ${postId}.`
+            );
+        }
+
+        const isPostOwner = targetPost.userId === userId;
+
         try {
-            const { userId, postId } = likePostInput;
-            const post = await this.findPostById(postId);
-            const postWasAlreadyLiked = post.likes.some((like) => like.userId === userId);
-            if (postWasAlreadyLiked) {
-                throw new Error("You can only like a post once.");
-            }
             const like = await this.prisma.like.create({
-                data: likePostInput,
+                select: defaultLikeSelect,
+                data: this.input,
             });
+
+            if (isPostOwner) {
+                return like;
+            }
+
             this.notificationService.sendNotification({
                 kind: "PostLiked",
                 userId,
                 postId,
             });
+
             return like;
-        } catch (e) {
-            throw new Error(e);
+        } catch (error) {
+            throw new InternalServerErrorException(error);
         }
     }
+}
 
-    async unlike(unlikePostInput: UnlikePostInput) {
+export class FindUniqueLikeCommand implements Command<Post> {
+    private prisma: PrismaService;
+
+    constructor(private readonly input: FindUniqueLikeInput) {
+        this.prisma = new PrismaService();
+    }
+
+    async execute(): Promise<any> {
+        const { likeId } = this.input;
         try {
-            await this.prisma.like.delete({
-                where: {
-                    id: unlikePostInput.id,
-                },
+            const like = await this.prisma.like.findUnique({
+                select: defaultLikeSelect,
+                where: { id: likeId },
             });
-        } catch (e) {
-            throw new Error(e);
+
+            return like;
+        } catch (error) {
+            throw new InternalServerErrorException(error);
         }
+    }
+}
+
+export class UnlikePostCommand implements Command<Post> {
+    private prisma: PrismaService;
+
+    constructor(private readonly input: UnlikePostInput) {
+        this.prisma = new PrismaService();
+    }
+
+    async execute(): Promise<any> {
+        const { id } = this.input;
+
+        const command = new FindUniqueLikeCommand({ likeId: id });
+        const targetLike = await command.execute();
+
+        if (!targetLike) {
+            throw new NotFoundException(`Like with id (${id}) not found.`);
+        }
+
+        const deletedLike = await this.prisma.like.delete({
+            select: defaultLikeSelect,
+            where: { id },
+        });
+
+        return deletedLike;
     }
 }

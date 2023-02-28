@@ -1,94 +1,60 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Post } from "./post.model";
 import {
     CreatePostInput,
-    FindPostInput,
+    FindUniquePostInput,
     LikePostInput,
-    ListPostsInput,
+    FindManyPostsInput,
     ReplyPostInput,
     UnlikePostInput,
 } from "./post.input";
-import { Post } from "./post.model";
-import { PostService } from "./post.service";
+import {
+    CreatePostCommand,
+    FindManyPostsCommand,
+    FindUniquePostCommand,
+    LikePostCommand,
+    PostService,
+    ReplyPostsCommand,
+    UnlikePostCommand,
+} from "./post.service";
 
 @Resolver(() => Post)
 export class PostResolver {
     constructor(private service: PostService) {}
 
     @Mutation(() => Post)
-    async createPost(
-        @Args("input")
-        input: CreatePostInput
-    ) {
-        try {
-            const response = await this.service.create(input);
-            return response;
-        } catch (e) {
-            throw new Error(e);
-        }
+    async createPost(@Args("input") input: CreatePostInput) {
+        const command = new CreatePostCommand(input);
+        return await this.service.executeCommand(command);
+    }
+
+    @Mutation(() => Post)
+    async replyPost(@Args("input") input: ReplyPostInput) {
+        const command = new ReplyPostsCommand(input);
+        return await this.service.executeCommand(command);
+    }
+
+    @Mutation(() => Post)
+    async likePost(@Args("input") input: LikePostInput) {
+        const command = new LikePostCommand(input);
+        return await this.service.executeCommand(command);
+    }
+
+    @Mutation(() => Post)
+    async unlikePost(@Args("input") input: UnlikePostInput) {
+        const command = new UnlikePostCommand(input);
+        return await this.service.executeCommand(command);
+    }
+
+    @Mutation(() => Post)
+    async findPost(@Args("input") input: FindUniquePostInput) {
+        const command = new FindUniquePostCommand(input);
+        return await this.service.executeCommand(command);
     }
 
     @Query(() => [Post])
-    async listPosts(
-        @Args("input")
-        input: ListPostsInput
-    ) {
-        try {
-            const response = await this.service.list(input);
-            return response;
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    @Mutation(() => Post)
-    async replyPost(
-        @Args("input")
-        input: ReplyPostInput
-    ) {
-        try {
-            const response = await this.service.reply(input);
-            return response;
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    @Mutation(() => Post)
-    async likePost(
-        @Args("input")
-        input: LikePostInput
-    ) {
-        try {
-            const response = await this.service.like(input);
-            return response;
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    @Mutation(() => Post)
-    async unlikePost(
-        @Args("input")
-        input: UnlikePostInput
-    ) {
-        try {
-            const response = await this.service.unlike(input);
-            return response;
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    @Mutation(() => Post)
-    async findPost(
-        @Args("input")
-        input: FindPostInput
-    ) {
-        try {
-            const response = await this.service.findPost(input);
-            return response;
-        } catch (e) {
-            throw new Error(e);
-        }
+    async listPosts(@Args("input") input: FindManyPostsInput) {
+        const command = new FindManyPostsCommand(input);
+        return await this.service.executeCommand(command);
     }
 }

@@ -13,15 +13,21 @@ export class CreatePostInput {
 }
 
 @InputType()
-export class ListPostsInput {
+export class FindManyPostsInput {
     @Field()
     userId: string;
 }
 
 @InputType()
-export class FindPostInput {
+export class FindUniquePostInput {
     @Field()
     postId: string;
+}
+
+@InputType()
+export class FindUniqueLikeInput {
+    @Field()
+    likeId: string;
 }
 
 @InputType()

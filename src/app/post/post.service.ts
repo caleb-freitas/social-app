@@ -149,7 +149,7 @@ export class ReplyPostsCommand implements Command<Post> {
 
             await this.notificationService.sendNotification({
                 kind: "PostReply",
-                userId,
+                userId: targetPost.userId,
                 postId: parentId,
             });
 
@@ -173,7 +173,7 @@ export class LikePostCommand implements Command<Post> {
         const { userId, postId } = this.input;
 
         const command = new FindUniquePostCommand({ postId });
-        const targetPost = await command.execute();
+        const targetPost: Post = await command.execute();
 
         if (!targetPost) {
             throw new NotFoundException(
@@ -193,6 +193,8 @@ export class LikePostCommand implements Command<Post> {
 
         const isPostOwner = targetPost.userId === userId;
 
+        const isReply = targetPost.parentId !== null
+
         try {
             const like = await this.prisma.like.create({
                 select: defaultLikeSelect,
@@ -204,8 +206,9 @@ export class LikePostCommand implements Command<Post> {
             }
 
             this.notificationService.sendNotification({
-                kind: "PostLiked",
-                userId,
+                kind: isReply ? "ReplyLiked" : "PostLiked",
+                userId: isReply ? targetPost.userId : userId,
+                idTriggered: isReply ? userId : targetPost.userId,
                 postId,
             });
 

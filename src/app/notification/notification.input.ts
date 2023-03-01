@@ -11,4 +11,7 @@ export class CreateNotificationInput {
 
     @Field()
     postId?: string;
+
+    @Field()
+    idTriggered?: string;
 }

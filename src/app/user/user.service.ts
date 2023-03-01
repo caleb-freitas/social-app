@@ -1,16 +1,17 @@
+import { Prisma, User } from "@prisma/client";
+import { Command } from "../common/interfaces/command";
+import { PrismaService } from "../common/services/prisma.service";
 import {
     ConflictException,
     Injectable,
     InternalServerErrorException,
 } from "@nestjs/common";
-import { Command } from "../common/interfaces/command";
-import { PrismaService } from "../common/services/prisma.service";
-import { Prisma, User } from "@prisma/client";
 import {
     CreateUserInput,
     FollowUserInput,
     UnfollowUserInput,
 } from "./user.input";
+import { NotificationService } from "../notification/notification.service";
 
 const defaultUserSelect = Prisma.validator<Prisma.UserSelect>()({
     id: true,
@@ -58,9 +59,11 @@ export class CreateUserCommand implements Command<any> {
 
 export class FollowUserCommand implements Command<any> {
     private prisma: PrismaService;
+    private notificationService: NotificationService;
 
     constructor(private readonly input: FollowUserInput) {
         this.prisma = new PrismaService();
+        this.notificationService = new NotificationService(this.prisma);
     }
 
     async execute(): Promise<any> {
@@ -75,6 +78,13 @@ export class FollowUserCommand implements Command<any> {
                     },
                 },
             });
+
+            await this.notificationService.sendNotification({
+                kind: "Follow",
+                userId: followedId,
+                idTriggered: followerId,
+            })
+
             return followedUser;
         } catch (error) {
             throw new InternalServerErrorException(error);
@@ -91,6 +101,7 @@ export class UnfollowUserCommand implements Command<any> {
 
     async execute(): Promise<any> {
         const { followedId, followerId } = this.input;
+        console.log(followerId, followedId);
         try {
             const unfollowedUser = await this.prisma.user.update({
                 select: defaultUserSelect,

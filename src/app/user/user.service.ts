@@ -34,12 +34,12 @@ export class UserService {
     }
 }
 
+@Injectable()
 export class CreateUserCommand implements Command<any> {
-    private prisma: PrismaService;
-
-    constructor(private readonly input: CreateUserInput) {
-        this.prisma = new PrismaService();
-    }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly input: CreateUserInput
+    ) {}
 
     async execute(): Promise<User> {
         try {
@@ -57,14 +57,13 @@ export class CreateUserCommand implements Command<any> {
     }
 }
 
+@Injectable()
 export class FollowUserCommand implements Command<any> {
-    private prisma: PrismaService;
-    private notificationService: NotificationService;
-
-    constructor(private readonly input: FollowUserInput) {
-        this.prisma = new PrismaService();
-        this.notificationService = new NotificationService(this.prisma);
-    }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly input: FollowUserInput,
+        private readonly notificationService: NotificationService
+    ) {}
 
     async execute(): Promise<any> {
         const { followedId, followerId } = this.input;
@@ -92,16 +91,15 @@ export class FollowUserCommand implements Command<any> {
     }
 }
 
+@Injectable()
 export class UnfollowUserCommand implements Command<any> {
-    private prisma: PrismaService;
-
-    constructor(private readonly input: UnfollowUserInput) {
-        this.prisma = new PrismaService();
-    }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly input: UnfollowUserInput
+    ) {}
 
     async execute(): Promise<any> {
         const { followedId, followerId } = this.input;
-        console.log(followerId, followedId);
         try {
             const unfollowedUser = await this.prisma.user.update({
                 select: defaultUserSelect,
